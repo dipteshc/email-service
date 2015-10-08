@@ -3,6 +3,7 @@
 """
 Class overriding BaseSender to send emails through MailGun.
 """
+import os
 import requests
 from email import Email
 
@@ -40,7 +41,7 @@ class MailgunSender(BaseSender):
         if email.hasAttachments():
             files = email.getAttachments()
             for fileName in files:
-                attachments.append(('attachment', fileName))
+                attachments.append((os.path.basename(fileName), fileName))
         return attachments
 
     def send(self, email):
