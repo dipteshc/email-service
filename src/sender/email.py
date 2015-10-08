@@ -1,15 +1,13 @@
 #!/usr/bin/python
-
+# Author: Diptesh Chatterjee
 """
 Class defining the structure of an Email. This class is immutable and should
 only be created using an EmailBuilder object. I know of no other way to make
 classes immutable in Python.
-
-@author Diptesh Chatterjee
 """
 class Email:
     def __init__(self, sender="", to=[], cc=[], bcc=[], subject="", body="",
-            attachments=[]):
+            attachments=[], mailFormat='text'):
         self.__sender__ = sender
         self.__to__ = to
         self.__cc__ = cc
@@ -17,6 +15,7 @@ class Email:
         self.__subject__ = subject
         self.__body__ = body
         self.__attachments__ = attachments
+        self.__format__ = mailFormat
 
     def getSender(self):
         return self.__sender__
@@ -39,6 +38,9 @@ class Email:
     def getAttachments(self):
         return self.__attachments__
 
+    def getFormat(self):
+        return self.__format__
+
 """
 Class EmailBuilder implements a builder pattern for Email. Since Email is an
 immutable class, I chose to use Builder pattern.
@@ -51,7 +53,7 @@ Usage:
               .
               .
               .create()
-
+Mail format can only be text or HTML.
 """
 
 class EmailBuilder:
@@ -63,6 +65,7 @@ class EmailBuilder:
         self.__subject__ = ""
         self.__body__ = ""
         self.__attachments__ = []
+        self.__format__ = 'text'
 
     def create(self):
         return Email(self.__sender, self.__receivers__, self.__cc__,
@@ -90,3 +93,8 @@ class EmailBuilder:
     def setBody(self, body):
             self.body = body
 
+    def setFormat(self, mailFormat):
+        if (not mailFormat.tolower() == 'text') and (not mailFormat.tolower()
+                =='html'):
+            raise Exception('Incorrect format. Can only be text or HTML')
+        self.__format__ = mailFormat
