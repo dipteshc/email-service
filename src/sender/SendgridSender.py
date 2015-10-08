@@ -10,7 +10,7 @@ from email import Email
 
 class SendgridSender(BaseSender):
     def __init__(self):
-        self.client = sendgrid.SendGridClient('dipteshc', 'pikachu123')
+        self.__client = sendgrid.SendGridClient('dipteshc', 'pikachu123')
 
     def __formatToHtml(self, text):
         newlinesReplaced = text.replace('\n', '<br>')
@@ -37,6 +37,6 @@ class SendgridSender(BaseSender):
         return msg
 
     def send(self, email):
-        msg = createMail(email)
-        return self.client.send(msg)
+        msg = __createMail(email)
+        return self.__client.send(msg)
 

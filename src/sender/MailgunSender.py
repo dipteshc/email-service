@@ -9,8 +9,8 @@ from email import Email
 
 class MailgunSender(BaseSender):
     def __init__(self):
-        self.address = 'https://api.mailgun.com/v3/sandbox434e53f77df14be581b568a4da667854.mailgun.org/messages'
-        self.auth = ('api', 'key-2a3ad9bec734fd11093f7191a2395b4f')
+        self.__address = 'https://api.mailgun.com/v3/sandbox434e53f77df14be581b568a4da667854.mailgun.org/messages'
+        self.__auth = ('api', 'key-2a3ad9bec734fd11093f7191a2395b4f')
 
     def __formatToHtml(self, text):
         newlinesReplaced = text.replace('\n', '<br>')
@@ -48,7 +48,7 @@ class MailgunSender(BaseSender):
         payload = self.__createPostPayload(email)
         attachments = self.__getAttachmentList(email)
         if len(attachments) == 0:
-            return requests.post(self.address, auth=self.auth, data=payload)
+            return requests.post(self.__address, auth=self.__auth, data=payload)
         else:
-            return requests.post(self.address, auth=self.auth,
+            return requests.post(self.__address, auth=self.__auth,
                     files=attachments, data=payload)
