@@ -6,9 +6,10 @@ only be created using an EmailBuilder object. I know of no other way to make
 classes immutable in Python.
 """
 class Email:
-    def __init__(self, sender="", to=[], cc=[], bcc=[], subject="", body="",
-            attachments=[], mailFormat='text'):
+    def __init__(self, sender='', senderEmail='', to=[], cc=[], bcc=[],
+            subject='', body='', attachments=[], mailFormat='text'):
         self.__sender__ = sender
+        self.__senderEmail__ = senderEmail
         self.__to__ = to
         self.__cc__ = cc
         self.__bcc__ = bcc
@@ -19,6 +20,9 @@ class Email:
 
     def getSender(self):
         return self.__sender__
+
+    def getSenderEmail(self):
+        return self.__senderEmail__
 
     def getRecepients(self):
         return self.__to__
@@ -41,6 +45,18 @@ class Email:
     def getFormat(self):
         return self.__format__
 
+    def hasSender(self):
+        return self.__sender__ != ''
+
+    def hasCCList(self):
+        return len(self.__cc__) != 0
+
+    def hasBCCList(self):
+        return len(self.__bcc__) != 0
+
+    def hasAttachments(self):
+        return len(self.__attachments__) != 0
+
 """
 Class EmailBuilder implements a builder pattern for Email. Since Email is an
 immutable class, I chose to use Builder pattern.
@@ -58,22 +74,30 @@ Mail format can only be text or HTML.
 
 class EmailBuilder:
     def __init__(self):
-        self.__sender__ = ""
+        self.__sender__ = ''
+        self.__senderEmail__ = ''
         self.__receivers__ = []
         self.__cc__ = []
         self.__bcc__ = []
-        self.__subject__ = ""
-        self.__body__ = ""
+        self.__subject__ = ''
+        self.__body__ = ''
         self.__attachments__ = []
         self.__format__ = 'text'
 
     def create(self):
-        return Email(self.__sender, self.__receivers__, self.__cc__,
+        if self.__senderEmail__ == '' or self.__receivers__ == []:
+            raise Exception('Sender and receiver cannot be empty')
+        if (not self.__format__ == 'text') and (not self.__format__ == 'html'):
+            raise Exception('Incorrect format. Can only be text or HTML')
+        return Email(self.__sender, self.__senderEmail__, self.__receivers__, self.__cc__,
                 self.__bcc__, self.__subject__, self.__body__,
                 self.__attachments__)
 
     def setSender(self, sender):
         self.__sender__ = sender
+
+    def setSenderEmail(self, senderEmail):
+        self.__senderEmail__(senderEmail)
 
     def addReceiver(self, receiver):
         self.__receivers__.append(receiver)
@@ -94,8 +118,5 @@ class EmailBuilder:
         self.__body__ = body
 
     def setFormat(self, mailFormat):
-        if (not mailFormat.tolower() == 'text') and (not mailFormat.tolower()
-                =='html'):
-            raise Exception('Incorrect format. Can only be text or HTML')
-        self.__format__ = mailFormat
+        self.__format__ = mailFormat.tolower()
 
