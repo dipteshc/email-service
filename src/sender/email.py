@@ -73,28 +73,29 @@ class EmailBuilder:
                 self.__attachments__)
 
     def setSender(self, sender):
-            self.__sender__ = sender
+        self.__sender__ = sender
 
     def addReceiver(self, receiver):
-            self.__receivers__.append(receiver)
+        self.__receivers__.append(receiver)
 
     def addCC(self, cc):
-            self.__cc__.append(cc)
+        self.__cc__.append(cc)
 
     def addBCC(self, bcc):
-            self.__bcc__.append(bcc)
+        self.__bcc__.append(bcc)
 
     def addAttachment(self, attachment):
-            self.__attachments__.append(attachment)
+        self.__attachments__.append(attachment)
 
     def setSubject(self, subject):
-            self.subject = subject
+        self.__subject__ = subject
 
     def setBody(self, body):
-            self.body = body
+        self.__body__ = body
 
     def setFormat(self, mailFormat):
         if (not mailFormat.tolower() == 'text') and (not mailFormat.tolower()
                 =='html'):
             raise Exception('Incorrect format. Can only be text or HTML')
         self.__format__ = mailFormat
+
