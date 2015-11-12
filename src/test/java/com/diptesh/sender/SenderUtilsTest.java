@@ -1,4 +1,4 @@
-package test.java.com.diptesh.email;
+package test.java.com.diptesh.sender;
 
 import static org.junit.Assert.assertEquals;
 
