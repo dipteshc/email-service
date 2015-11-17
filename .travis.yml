@@ -1,0 +1,5 @@
+sudo: false
+cache:
+  directories:
+  - $HOME/.m2
+script: mvn -U clean compile
