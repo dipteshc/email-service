@@ -1,4 +1,4 @@
-package main.java.com.diptesh.sender;
+package main.java.com.diptesh.emailclients;
 
 import java.io.File;
 import java.io.IOException;

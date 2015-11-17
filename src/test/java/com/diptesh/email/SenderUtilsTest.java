@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import main.java.com.diptesh.email.Person;
-import main.java.com.diptesh.sender.SenderUtils;
+import main.java.com.diptesh.emailclients.SenderUtils;
 
 /*
  * Unit tests for {@link SenderUtils}

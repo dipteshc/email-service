@@ -1,4 +1,4 @@
-package test.java.com.diptesh.sender;
+package com.diptesh.emailclients;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -18,9 +18,9 @@ import main.java.com.diptesh.connection.EmailConnectionProvider;
 import main.java.com.diptesh.email.Attachment;
 import main.java.com.diptesh.email.Email;
 import main.java.com.diptesh.email.Email.Format;
+import main.java.com.diptesh.emailclients.SendgridClient;
+import main.java.com.diptesh.emailclients.EmailClient.EmailResponse;
 import main.java.com.diptesh.email.Person;
-import main.java.com.diptesh.sender.EmailClient.EmailResponse;
-import main.java.com.diptesh.sender.SendgridClient;
 
 /**
  * Unit tests for {@link SendgridClient}
