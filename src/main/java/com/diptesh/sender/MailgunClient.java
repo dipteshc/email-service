@@ -1,49 +1,35 @@
 package main.java.com.diptesh.sender;
 
-import static main.java.com.diptesh.email.Email.Format.TEXT;
-
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.ws.rs.core.MediaType;
 
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 
+import main.java.com.diptesh.connection.EmailConnectionProvider;
 import main.java.com.diptesh.email.Attachment;
 import main.java.com.diptesh.email.Email;
+import main.java.com.diptesh.email.Email.Format;
 import main.java.com.diptesh.email.Person;
 
-/**
- * Implementation of Sender for interfacing with Mailgun.
- *
- * @author diptesh.chatterjee
- *
- */
-public final class MailgunSender implements Sender {
-	private static final String API_KEY = "";
-	private static final String URI = "https://api.mailgun.com/v3/sandbox434e53f77df14be581b568a4da667854.mailgun.org/messages";
-	private SenderConnection connection = null;
-	private EmailResponse response = null;
+public class MailgunClient extends EmailClient {
+	private WebResource.Builder htmlConn = null;
+	private WebResource.Builder textConn = null;
 
-	@Override
-	public SenderConnection getConnection() {
-		return connection;
+	public MailgunClient(final EmailConnectionProvider factory) {
+		super(factory);
 	}
 
 	@Override
-	public EmailResponse getResponse() {
-		return response;
-	}
-
-	@Override
-	public void init() {
-		final Client client = Client.create();
-		client.addFilter(new HTTPBasicAuthFilter("api", API_KEY));
-		connection = new SenderConnection(client.resource(URI));
+	public void getEmailConnection() {
+		htmlConn = factory.getMailgunBuilderHTMLConn();
+		textConn = factory.getMailgunBuilderTextConn();
 	}
 
 	private FormDataMultiPart populateFormData(final Email email) {
@@ -85,21 +71,44 @@ public final class MailgunSender implements Sender {
 		return mime;
 	}
 
-	/*
-	 * Send an email through Mailgun.
-	 */
+	private String readInputStream(final InputStream stream) {
+		int byteRead;
+		final StringBuilder sb = new StringBuilder();
+		try {
+			while ((byteRead = stream.read()) != -1) {
+				sb.append((char) byteRead);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+	}
+
 	@Override
-	public void send(final Email email) throws Exception {
-		if (email.getFormat() == TEXT) {
-			final MultivaluedMapImpl formData = populateTextFormData(email);
-			response = new EmailResponse(connection.getMailgunConn()
-					.type(MediaType.APPLICATION_FORM_URLENCODED)
-					.post(ClientResponse.class, formData));
+	public void resetConnection() {
+		htmlConn = factory.getNewMailgunBuilderHTMLConn();
+		textConn = factory.getNewMailgunBuilderTextConn();
+	}
+
+	@Override
+	public EmailResponse send(final Email email) {
+		if (email.getFormat() == Format.HTML) {
+			if (htmlConn == null) {
+				getEmailConnection();
+			}
+			final FormDataMultiPart formData = populateFormData(email);
+			final ClientResponse clientRes = htmlConn.post(ClientResponse.class, formData);
+			return new EmailResponse(
+					clientRes.getStatus(), readInputStream(clientRes.getEntityInputStream()));
+
 		} else {
-			final FormDataMultiPart htmlForm = populateFormData(email);
-			response = new EmailResponse(connection.getMailgunConn()
-					.type(MediaType.MULTIPART_FORM_DATA_TYPE)
-					.post(ClientResponse.class, htmlForm));
+			if (textConn == null) {
+				getEmailConnection();
+			}
+			final MultivaluedMapImpl textFormat = populateTextFormData(email);
+			final ClientResponse clientRes = textConn.post(ClientResponse.class, textFormat);
+			return new EmailResponse(
+					clientRes.getStatus(), readInputStream(clientRes.getEntityInputStream()));
 		}
 	}
 }

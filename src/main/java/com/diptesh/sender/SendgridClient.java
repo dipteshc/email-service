@@ -5,20 +5,20 @@ import static main.java.com.diptesh.email.Email.Format.TEXT;
 import java.io.IOException;
 
 import com.sendgrid.SendGrid;
+import com.sendgrid.SendGrid.Response;
+import com.sendgrid.SendGridException;
 
+import main.java.com.diptesh.connection.EmailConnectionProvider;
 import main.java.com.diptesh.email.Attachment;
 import main.java.com.diptesh.email.Email;
 import main.java.com.diptesh.email.Person;
 
-/**
- * Implementation of Sender for interfacing with Sendgrid.
- *
- * @author diptesh.chatterjee
- *
- */
-public class SendgridSender implements Sender {
-	private SenderConnection connection = null;
-	private EmailResponse response = null;
+public class SendgridClient extends EmailClient {
+	private SendGrid conn = null;
+
+	public SendgridClient(final EmailConnectionProvider factory) {
+		super(factory);
+	}
 
 	private SendGrid.Email createMimeForSendgrid(final Email email) {
 		final SendGrid.Email sendgridEmail = new SendGrid.Email();
@@ -49,27 +49,27 @@ public class SendgridSender implements Sender {
 	}
 
 	@Override
-	public SenderConnection getConnection() {
-		return connection;
+	public void getEmailConnection() {
+		conn = factory.getSendGridConn();
 	}
 
 	@Override
-	public EmailResponse getResponse() {
-		return response;
+	public void resetConnection() {
+		conn = factory.getNewSendGridConn();
 	}
 
 	@Override
-	public void init() {
-		connection = new SenderConnection(new SendGrid("dipteshc", "pikachu123"));
+	public EmailResponse send(final Email email) {
+		if (conn == null) {
+			getEmailConnection();
+		}
+		EmailResponse res = null;
+		try {
+			final Response resp = conn.send(createMimeForSendgrid(email));
+			res = new EmailResponse(resp.getCode(), resp.getMessage());
+		} catch (final SendGridException e) {
+			e.printStackTrace();
+		}
+		return res;
 	}
-
-	/*
-	 * Send an email through Sendgrid.
-	 */
-	@Override
-	public void send(final Email email) throws Exception {
-		final SendGrid.Email sendgridEmail = createMimeForSendgrid(email);
-		response = new EmailResponse(connection.getSendgridConn().send(sendgridEmail));
-	}
-
 }
